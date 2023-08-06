@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en" data-bs-theme="auto">
+
+<head>
+
+
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <title>Isotope Search List</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+
+</head>
+
+<body>
+
+  <main>
+    <div class="container py-5">
+      <h1 class="mb-5 text-center">Isotope Search List</h1>
+
+      <div class="search-list">
+
+        <div class="d-block text-center mb-4">
+          <div id="filters-masonry" class="filter-buttons btn-group" id="filter-buttons-masonry_1">
+            <button data-filter="*" class="btn btn-outline-primary mb-1 active">All</button>
+            <button class="btn btn-outline-primary mb-1" data-filter=".red">Red</button>
+            <button class="btn btn-outline-primary mb-1" data-filter=".blue">Blue</button>
+          </div>
+        </div>
+
+        <!-- Filter Searchform -->
+        <div class="mb-4">
+          <input type="text" class="quicksearch form-control" placeholder="Search" />
+        </div>
+
+        <div id="masonry" class="grid row g-4 mb-4">
+
+          <div class="blue item col-12">
+            <div class="card card-body">
+              <h5>Blue 1</h5>
+              <p class="card-text">A blue item</p>
+            </div>
+          </div>
+
+          <div class="red item col-12">
+            <div class="card card-body">
+              <h5>Red 1</h5>
+              <p class="card-text">A red item</p>
+            </div>
+          </div>
+
+          <div class="blue item col-12">
+            <div class="card card-body">
+              <h5>Blue 2</h5>
+              <p class="card-text">A blue item cat</p>
+            </div>
+          </div>
+
+          <div class="red item col-12">
+            <div class="card card-body">
+              <h5>Red 2</h5>
+              <p class="card-text">A red item dog</p>
+            </div>
+          </div>
+
+          <div class="blue item col-12">
+            <div class="card card-body">
+              <h5>Blue 3</h5>
+              <p class="card-text">A blue item cat dog horse</p>
+            </div>
+          </div>
+
+          <div class="red item col-12">
+            <div class="card card-body">
+              <h5>Red 3</h5>
+              <p class="card-text">A red item</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div><!-- search-list -->
+
+    </div><!-- container -->
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/isotope-layout@3/dist/isotope.pkgd.min.js"></script>
+
+
+  <script>
+    jQuery(function($) {
+
+      // Isotope init
+      // Searchform script
+      // See https://codepen.io/desandro/pen/WyOZjx
+
+      // store filter for each group
+      var buttonFilters = {};
+      var buttonFilter;
+      // quick search regex
+      var qsRegex;
+
+      // init Isotope
+      var $grid = $('#masonry').isotope({
+        itemSelector: '.item',
+        filter: function() {
+          var $this = $(this);
+          var searchResult = qsRegex ? $this.text().match(qsRegex) : true;
+          var buttonResult = buttonFilter ? $this.is(buttonFilter) : true;
+          return searchResult && buttonResult;
+        },
+      });
+
+      $('#filters-masonry').on('click', 'button', function() {
+        var $this = $(this);
+        // get group key
+        var $buttonGroup = $this.parents('.filter-buttons');
+        var filterGroup = $buttonGroup.attr('data-filter-group');
+        // set filter for group
+        buttonFilters[filterGroup] = $this.attr('data-filter');
+        // combine filters
+        buttonFilter = concatValues(buttonFilters);
+        // Isotope arrange
+        $grid.isotope();
+      });
+
+      // use value of search field to filter
+      var $quicksearch = $('.quicksearch').keyup(debounce(function() {
+        qsRegex = new RegExp($quicksearch.val(), 'gi');
+        $grid.isotope();
+      }));
+
+      // change is-checked class on buttons
+      $('.filter-buttons').each(function(i, buttonGroup) {
+        var $buttonGroup = $(buttonGroup);
+        $buttonGroup.on('click', 'button', function() {
+          $buttonGroup.find('.active').removeClass('active');
+          $(this).addClass('active');
+        });
+      });
+
+      // flatten object by concatting values
+      function concatValues(obj) {
+        var value = '';
+        for (var prop in obj) {
+          value += obj[prop];
+        }
+        return value;
+      }
+
+      // debounce so filtering doesn't happen every millisecond
+      function debounce(fn, threshold) {
+        var timeout;
+        threshold = threshold || 100;
+        return function debounced() {
+          clearTimeout(timeout);
+          var args = arguments;
+          var _this = this;
+
+          function delayed() {
+            fn.apply(_this, args);
+          }
+          timeout = setTimeout(delayed, threshold);
+        };
+      }
+
+    }); // jQuery End
+
+  </script>
+
+
+
+
+</body>
+
+</html>
